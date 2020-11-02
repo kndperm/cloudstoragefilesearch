@@ -1,6 +1,6 @@
-package ru.kharlashko.Connection.GoogleDrive;
+package ru.kharlashko.Enums;
 
-public enum GoogleMimeType {
+public enum MimeType {
     GOOGLEFOLDER("'application/vnd.google-apps.folder'"),
     GOOGLEDOC("'application/vnd.google-apps.document'"),
     GOOGLESHEET("'application/vnd.google-apps.spreadsheet'"),
@@ -28,10 +28,20 @@ public enum GoogleMimeType {
 
 private final String type;
 
-    GoogleMimeType (String type)
+    MimeType (String type)
     {
         this.type = type;
     }
+
+public static MimeType getEnum(String type)
+{
+    for (MimeType t : values()) {
+        if(t.type.equals(type))
+        return t;
+    }
+
+    return null;
+}
 
     @Override
     public String toString()

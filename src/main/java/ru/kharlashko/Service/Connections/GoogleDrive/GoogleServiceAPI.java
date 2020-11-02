@@ -1,4 +1,4 @@
-package ru.kharlashko.Connection.GoogleDrive;
+package ru.kharlashko.Service.Connections.GoogleDrive;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -29,10 +29,11 @@ import com.google.api.services.drive.model.FileList;
 
 import ru.kharlashko.Classes.FileJSON;
 import ru.kharlashko.Classes.SearchParams;
+import ru.kharlashko.Classes.UploadParams;
 import ru.kharlashko.Enums.FileSource;
 import ru.kharlashko.Interfaces.IService;
 
-public class GoogleServiceAPI /* implements IService */ {
+public class GoogleServiceAPI implements IService {
 
     private static final String APPLICATION_NAME = "MonitoringDemo";
     private static final String CREDENTIAL_FILE_PATH = "/google/client_secret.json";
@@ -44,9 +45,6 @@ public class GoogleServiceAPI /* implements IService */ {
 
     public GoogleServiceAPI() {
     }
-
-    // public void test() {
-    // }
 
     // Get user Credential
     private static Credential getCredential(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
@@ -86,28 +84,28 @@ public class GoogleServiceAPI /* implements IService */ {
     }
 
     // Upload File
-    public String Upload(String name, Object mimeType, String originalFilePath) throws IOException {
+    public String Upload(UploadParams params) throws IOException {
         File fileMeta = new File();
-        fileMeta.setName(name);
-        fileMeta.setMimeType(mimeType.toString());
+        fileMeta.setName(params.getName());
+        fileMeta.setMimeType(params.getMimeType().toString());
 
-        java.io.File filePath = new java.io.File(originalFilePath);
-        FileContent mediaContent = new FileContent(mimeType.toString(), filePath);
+        java.io.File filePath = new java.io.File(params.getOriginalFileName());
+        FileContent mediaContent = new FileContent(params.getMimeType().toString(), filePath);
 
         File file = service.files().create(fileMeta, mediaContent).setFields("id").execute();
         return file.getId();
     }
 
     // Download file
-    public void Download(String fileId) throws IOException {
+    public void Download(String id) throws IOException {
         OutputStream outputStream = new ByteArrayOutputStream();
-        service.files().get(fileId).executeAndDownloadTo(outputStream);
+        service.files().get(id).executeAndDownloadTo(outputStream);
     }
 
-        // Download file
-        public void Delete(String fileId) throws IOException {
-            service.files().delete(fileId).execute();
-        }
+    // Download file
+    public void Delete(String fileId) throws IOException {
+        service.files().delete(fileId).execute();
+    }
 
     // Search Files
     public List<FileJSON> Search(SearchParams params) throws IOException {
@@ -159,6 +157,7 @@ public class GoogleServiceAPI /* implements IService */ {
         return searchResult;
     }
 
+    // Show all files in Google Drive
     public List<FileJSON> ShowAll() {
 
         List<File> files = new ArrayList<File>();
@@ -178,8 +177,8 @@ public class GoogleServiceAPI /* implements IService */ {
 
         for (File f : files) {
 
-            FileJSON fileJSON = new FileJSON(f.getName(), f.getFileExtension(), f.getMimeType(), f.getId(),
-                    FileSource.GoogleDrive);
+            FileJSON fileJSON = new FileJSON(f.getName(), f.getFileExtension(), f.getMimeType(),
+                    f.getCreatedTime().toString(), f.getModifiedTime().toString(), FileSource.GoogleDrive, f.getId());
             fileJSONList.add(fileJSON);
         }
 

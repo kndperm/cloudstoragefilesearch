@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ru.kharlashko.Classes.FileJSON;
 import ru.kharlashko.Classes.SearchParams;
-import ru.kharlashko.Connection.GoogleDrive.GoogleServiceAPI;
+import ru.kharlashko.Service.Connections.GoogleDrive.GoogleServiceAPI;
 import ru.kharlashko.Service.ElasticSearch.ElasticSearchService;
 
 @RestController
 public class AllDriversController {
 
-    @RequestMapping("ShowAll")
+    @RequestMapping("/ShowAll")
     public List<FileJSON> showAll() {
         List<FileJSON> allFiles = new ArrayList<FileJSON>();
 
@@ -31,7 +31,7 @@ public class AllDriversController {
         return allFiles;
     }
 
-    @RequestMapping("Search")
+    @RequestMapping("/Search")
     public List<FileJSON> searchInElastic(@RequestParam String[] names, @RequestParam String[] values) {
         List<FileJSON> results = new ArrayList<FileJSON>();
 
@@ -46,7 +46,7 @@ public class AllDriversController {
         return results;
     }
 
-    @RequestMapping("SearchInDriveAll")
+    @RequestMapping("/SearchInDriveAll")
     public List<FileJSON> searchInDriver(@RequestParam SearchParams params) {
         List<FileJSON> finalResults = new ArrayList<FileJSON>();
 
@@ -64,7 +64,7 @@ public class AllDriversController {
     }
 
     // TODO удадалять данных которых нет
-    @RequestMapping("UpdateDataToElasticsearch")
+    @RequestMapping("/UpdateDataToElasticsearch")
     public void updateDataInElasticsearch() {
         GoogleServiceAPI googleServiceAPI = new GoogleServiceAPI();
 

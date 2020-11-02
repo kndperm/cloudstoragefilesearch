@@ -22,7 +22,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.springframework.stereotype.Service;
 
 import ru.kharlashko.Classes.FileJSON;
 
@@ -33,32 +32,29 @@ public class ElasticSearchService {
 
     private RestHighLevelClient client;
 
+    //ElasticSearch service initialize
     public ElasticSearchService() {
         client = new RestHighLevelClient(RestClient.builder(new HttpHost(_webhost, _webport, "http")));
     }
 
-    // Add data to Elastic
+    // Add file information to Elastic
     public void addJSONToElastic(FileJSON fileJSON, String index, String indexId) throws IOException {
 
-        IndexRequest indexRequest = new IndexRequest(index);
-        indexRequest.id(indexId);
+        IndexRequest indexRequest = new IndexRequest(index).id(indexId);
         indexRequest.source(fileJSON.toJSON().toMap(), XContentType.JSON);
-
         client.index(indexRequest, RequestOptions.DEFAULT);
     }
 
-    // Search data from Elastic
+    // Search files information from Elastic
     public List<FileJSON> searchJSON(String[] names, String[] values) throws IOException {
 
-        SearchRequest searchRequest = new SearchRequest();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-
         for (int i = 0; i < names.length; i++) {
             searchSourceBuilder.query(QueryBuilders.termQuery(names[i], values[i]));
         }
-
         //searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-
+        
+        SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("posts");
         searchRequest.source(searchSourceBuilder);
 
@@ -78,6 +74,7 @@ public class ElasticSearchService {
         return results;
     }
 
+    //Show all files saved in Elastic
     public List<FileJSON> showAll() throws IOException {
         List<FileJSON> results = new ArrayList<FileJSON>();
 
@@ -100,14 +97,14 @@ public class ElasticSearchService {
         return results;
     }
 
-    // Delete data from Elastic
+    // Delete file information from Elastic
     public void deleteJSON(String index, String indexId) throws IOException {
         DeleteRequest request = new DeleteRequest(index, indexId);
 
         client.delete(request, RequestOptions.DEFAULT);
     }
 
-    // Update data
+    // Update file information
     public void updateJSON(List<String> names, List<String> values, String index, String indexId) throws IOException {
         UpdateRequest request = new UpdateRequest(index, indexId);
 
@@ -127,6 +124,7 @@ public class ElasticSearchService {
         client.close();
     }
 
+    //Checks if file information exist in Elastic
     public Boolean isThisFileExist(String index, String indexId) throws IOException {
         GetRequest request = new GetRequest(index, indexId);
 
